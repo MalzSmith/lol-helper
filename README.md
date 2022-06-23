@@ -8,8 +8,8 @@ After building you can simply run the code, paste your api key in the text box f
 
 # Credits
 
-Camille is used for communicating with Riot's WEB API.
+Camille is used for communicating with Riot's WEB API.  
 https://github.com/MingweiSamuel/Camille
 
-PoniLCU is used for communicating with LCU
+PoniLCU is used for communicating with LCU  
 https://github.com/Ponita0/PoniLCU
