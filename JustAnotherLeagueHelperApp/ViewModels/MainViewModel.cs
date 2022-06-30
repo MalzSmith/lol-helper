@@ -10,25 +10,25 @@ namespace JustAnotherLeagueHelperApp.ViewModels
     public class MainViewModel : ViewModelBase
     {
         private readonly SummonerService _summonerService;
+        private readonly LobbyService _lobbyService;
         private string _apiKey;
 
-        public MainViewModel(SummonerService summonerService, LeagueClient leagueClient, LobbyService lobbyService, GameFlowService gameFlowService)
+        public MainViewModel(SummonerService summonerService, LeagueClient leagueClient, LobbyService lobbyService,
+            GameFlowService gameFlowService)
         {
             // This is black magic
             BindingOperations.EnableCollectionSynchronization(AlliedSummoners, this);
             BindingOperations.EnableCollectionSynchronization(EnemySummoners, this);
 
             ApiKey = "YOUR API KEY HERE";
-            
+
             _summonerService = summonerService;
-            var a = gameFlowService.GameFlowPhase;
-            GameflowPhaseChanged(a);
-            
-            
+            _lobbyService = lobbyService;
+
+            GameflowPhaseChanged(gameFlowService.GameFlowPhase);
+
             lobbyService.LobbyChanged += LobbyServiceOnLobbyChanged;
             gameFlowService.GameFlowPhaseChanged += GameflowPhaseChanged;
-            
-            
         }
 
         private void LobbyServiceOnLobbyChanged(List<LobbyMember> obj)
@@ -74,12 +74,28 @@ namespace JustAnotherLeagueHelperApp.ViewModels
 
         private void GameflowPhaseChanged(string phase)
         {
-            System.Diagnostics.Debug.WriteLine(phase);
-            if (phase == "None")
+            switch (phase)
             {
-                SetupWithCurrent();
+                case "None":
+                    SetupWithCurrent();
+                    break;
+                case "Lobby":
+                case "Matchmaking":
+                case "ReadyCheck":
+                    LobbyServiceOnLobbyChanged(_lobbyService.GetLobbyMembers());
+                    // TODO
+                    break;
+                case "ChampSelect":
+                    // TODO
+                    break;
+                case "GameStart":
+                    break;
+                case "InProgress":
+                    // TODO
+                    break;
             }
         }
+
 
         public ObservableCollection<SummonerViewModel> AlliedSummoners { get; } = new();
 

@@ -12,7 +12,8 @@ namespace JustAnotherLeagueHelperApp.Services
 {
     public class LobbyService
     {
-        private LeagueClient _leagueClient;
+        private const string Path = "/lol-lobby/v2/lobby/members";
+        private readonly LeagueClient _leagueClient;
 
         public LobbyService(LeagueClient leagueClient)
         {
@@ -21,14 +22,18 @@ namespace JustAnotherLeagueHelperApp.Services
             _leagueClient.Subscribe("/lol-lobby/v2/lobby/members", LobbyMembersChanged);
         }
 
+        public List<LobbyMember> GetLobbyMembers()
+        {
+            var text = _leagueClient.Request(LeagueClient.requestMethod.GET, Path).Result;
+            return JsonConvert.DeserializeObject<List<LobbyMember>>(text);
+        }
+
         private void LobbyMembersChanged(OnWebsocketEventArgs obj)
         {
             if (obj.Type == "Update")
             {
-                List<dynamic> data = ((JArray) obj.Data).Select(d => JsonConvert.DeserializeObject<ExpandoObject>(d.ToString(), new ExpandoObjectConverter()) as dynamic).ToList();
-                List<LobbyMember> result = data
-                    .Select(member => new LobbyMember {Name = member.summonerName, Team = member.teamId})
-                    .ToList();
+                var result =
+                    JsonConvert.DeserializeObject<List<LobbyMember>>(((JArray) obj.Data).ToString());
                 OnLobbyChanged(result);
             }
             else
